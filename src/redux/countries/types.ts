@@ -8,6 +8,7 @@ export interface CountriesState {
 	countryDetails: CountryDetails | null;
 	loading: boolean;
 	error: string | null;
+	page: number;
 }
 
 export interface CountryDetails {

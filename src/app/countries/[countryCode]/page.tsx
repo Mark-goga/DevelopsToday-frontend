@@ -21,6 +21,10 @@ import {
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import Link from 'next/link';
+import Loader from "@/app/components/Loader";
+import {setError} from "@/redux/countries/countriesSlice";
+import WarningText from "@/app/components/WarningText";
+import {UNKNOWN_ERROR_MESSAGE} from "@/app/constants/errors";
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -38,15 +42,19 @@ export default function CountryInfoPage() {
 	}, [dispatch, countryCode]);
 
 	if (loading) {
-		return <div className="text-center text-white">Loading...</div>;
+		return <Loader styles={'absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%'} />;
 	}
 
 	if (error) {
-		return <div className="text-center text-red-500">{error}</div>;
+		dispatch(setError(UNKNOWN_ERROR_MESSAGE));
 	}
 
 	if (!countryInfo) {
-		return <div className="text-center text-white">No details available</div>;
+		return <WarningText text={'No details available'} />;
+	}
+
+	if (!countryInfo.population || !countryInfo.countryInfo) {
+		return <WarningText text={'Incomplete data for the country'} />;
 	}
 
 	const populationData = {
@@ -64,6 +72,14 @@ export default function CountryInfoPage() {
 	return (
 		<main className="min-h-screen bg-gray-900 text-white">
 			<div className="max-w-4xl mx-auto py-10">
+					<div className="mt-8 mb-8 ml-10">
+						<Link
+							href="/countries"
+							className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded text-white font-semibold"
+						>
+							Go Back
+						</Link>
+					</div>
 				<div className="text-center mb-6">
 					<h1 className="text-4xl font-bold text-purple-400">{countryInfo.countryInfo.commonName}</h1>
 					<img
@@ -89,7 +105,7 @@ export default function CountryInfoPage() {
 				</div>
 				<div>
 					<h2 className="text-2xl font-semibold mb-4">Population Over Time</h2>
-					<Line data={populationData} />
+					<Line data={populationData}/>
 				</div>
 			</div>
 		</main>

@@ -7,6 +7,7 @@ const initialState: CountriesState = {
 	countryDetails: null,
 	loading: false,
 	error: null,
+	page: 1,
 };
 
 const setPending = (state: CountriesState) => {
@@ -21,7 +22,14 @@ const setRejected = (state: CountriesState, action: PayloadAction<string>) => {
 const countriesSlice = createSlice({
 	name: 'countries',
 	initialState,
-	reducers: {},
+	reducers: {
+		setError: (state, action: PayloadAction<string | null>) => {
+			state.error = action.payload;
+		},
+		setPage: (state, action: PayloadAction<number>) => {
+			state.page = action.payload;
+		},
+	},
 	extraReducers: (builder) => {
 		builder
 		// Fetch countries
@@ -30,7 +38,7 @@ const countriesSlice = createSlice({
 		})
 		.addCase(fetchCountries.fulfilled, (state, action) => {
 			state.loading = false;
-			state.countries = action.payload;
+			state.countries = [...state.countries, ...action.payload];
 		})
 		.addCase(fetchCountries.rejected, (state, action) => {
 			setRejected(state, action as PayloadAction<string>)
@@ -48,5 +56,5 @@ const countriesSlice = createSlice({
 		});
 	},
 });
-
+export const {setError, setPage} = countriesSlice.actions;
 export default countriesSlice.reducer;
