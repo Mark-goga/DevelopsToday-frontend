@@ -1,7 +1,14 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCountryDetails } from '@/redux/countries/countriesOperation';
+import { AppDispatch } from '@/redux/store';
+import {
+	selectCountryDetails,
+	selectError,
+	selectLoading,
+} from '@/redux/countries/countriesSelector';
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -13,41 +20,22 @@ import {
 	Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
+import Link from 'next/link';
 
-ChartJS.register(
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Title,
-	Tooltip,
-	Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 export default function CountryInfoPage() {
 	const { countryCode } = useParams();
-	const [countryInfo, setCountryInfo] = useState<any>(null);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
+	const dispatch = useDispatch<AppDispatch>();
+	const countryInfo = useSelector(selectCountryDetails);
+	const loading = useSelector(selectLoading);
+	const error = useSelector(selectError);
 
 	useEffect(() => {
-		const fetchCountryInfo = async () => {
-			try {
-				const response = await fetch(`http://localhost:3123/countries/${countryCode}`);
-				if (!response.ok) {
-					throw new Error('Failed to fetch country details');
-				}
-				const data = await response.json();
-				setCountryInfo(data);
-				setLoading(false);
-			} catch (err: any) {
-				setError(err.message);
-				setLoading(false);
-			}
-		};
-
-		fetchCountryInfo();
-	}, [countryCode]);
+		if (countryCode) {
+			dispatch(fetchCountryDetails(countryCode as string));
+		}
+	}, [dispatch, countryCode]);
 
 	if (loading) {
 		return <div className="text-center text-white">Loading...</div>;
@@ -55,6 +43,10 @@ export default function CountryInfoPage() {
 
 	if (error) {
 		return <div className="text-center text-red-500">{error}</div>;
+	}
+
+	if (!countryInfo) {
+		return <div className="text-center text-white">No details available</div>;
 	}
 
 	const populationData = {
