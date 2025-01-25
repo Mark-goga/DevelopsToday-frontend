@@ -1,17 +1,6 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {fetchCountries, fetchCountryDetails} from "@/redux/countries/countriesOperation";
-
-interface Country {
-	countryCode: string;
-	name: string;
-}
-
-interface CountriesState {
-	countries: Country[];
-	countryDetails: CountryDetails | null;
-	loading: boolean;
-	error: string | null;
-}
+import {CountriesState} from "@/redux/countries/types";
 
 const initialState: CountriesState = {
 	countries: [],
@@ -19,36 +8,14 @@ const initialState: CountriesState = {
 	loading: false,
 	error: null,
 };
-interface CountryDetails {
-	countryInfo: CountryInfo;
-	population: PopulationCounts[];
-	flag: string;
-}
-interface PopulationCounts {
-	year: number;
-	value: number;
-}
-interface CountryInfo {
-	commonName: string;
-	officialName: string;
-	countryCode: string;
-	region: string;
-	borders: BorderCountry[] | null;
-}
-interface BorderCountry {
-	commonName: string;
-	officialName: string;
-	countryCode: string;
-	region: string;
-	borders: null;
-}
-const setPending = (state) => {
+
+const setPending = (state: CountriesState) => {
 	state.loading = true;
 	state.error = null;
 };
-const setRejected = (state, action) => {
+const setRejected = (state: CountriesState, action: PayloadAction<string>) => {
 	state.loading = false;
-	state.error = action.payload as string;
+	state.error = action.payload;
 }
 
 const countriesSlice = createSlice({
@@ -66,7 +33,7 @@ const countriesSlice = createSlice({
 			state.countries = action.payload;
 		})
 		.addCase(fetchCountries.rejected, (state, action) => {
-			setRejected(state, action)
+			setRejected(state, action as PayloadAction<string>)
 		})
 		// Fetch country details
 		.addCase(fetchCountryDetails.pending, (state) => {
@@ -77,7 +44,7 @@ const countriesSlice = createSlice({
 			state.countryDetails = action.payload;
 		})
 		.addCase(fetchCountryDetails.rejected, (state, action) => {
-			setRejected(state, action)
+			setRejected(state, action as PayloadAction<string>)
 		});
 	},
 });

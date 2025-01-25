@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCountries } from '@/redux/countries/countriesOperation';
-import { AppDispatch, RootState } from '@/redux/store';
+import { AppDispatch } from '@/redux/store';
 import {selectCountries, selectError, selectLoading} from "@/redux/countries/countriesSelector";
 
 
